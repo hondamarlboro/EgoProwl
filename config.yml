@@ -16,6 +16,10 @@ NMA:
 Growl:
   Sticky: 0    # lowest priority to enable stikcy option
 
+ImKayac:
+  ImUser: xxxxxxxx
+  SecretKey: xxxxxxxx
+
 Accounts:
  -
   Application: "Twitter"
@@ -27,6 +31,7 @@ Accounts:
   NotifyMethods:
     - "prowl" # Prowl for iPhone
 #   - "nma"   # Notify My Android for Android
+#   - "imkayac" #im.kayac.com
 #   - "growl" # use growlnotify, it requires growl.gem and growlnotify
 
   Redirect: "tweetbot:///status/%s"     # Tweetbot
