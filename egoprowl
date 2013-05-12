@@ -332,64 +332,63 @@ class EgoProwl
 
 ##begin of im.kayac.com
 
-module IM
-class Kayac
-	   HOST = 'im.kayac.com'
-	   def initialize(to, params={})
-	     if to.nil?
-	       raise ArgumentError
-	     else
-	       @to = to
-	     end
-	     @id  = params[:id].to_s
-	     @pwd = params[:password].to_s
-	     @sig = params[:sig].to_s
-	   end
+	module IM
+		class Kayac
+			HOST = 'im.kayac.com'
+			def initialize(to, params={})
+				if to.nil?
+					raise ArgumentError
+				else
+					@to = to
+				end
+				@id  = params[:id].to_s
+				@pwd = params[:password].to_s
+				@sig = params[:sig].to_s
+			end
 
-   def notify(msg)
-     if !@sig.nil?
-       sig = Digest::SHA1.hexdigest(msg + @sig)
-       data = 'message=%s&amp;sig=%s' % [u(msg), sig]
-     elsif !@pwd.nil?
-       data = 'message=%s&amp;password=%s' % [u(msg), u(@pwd)]
-     else
-	 	data = 'message=%s' % [u(msg)]
-     end
-	    data << '&amp;id=%s' % [u(@id)] unless @id.nil?
-	     header = {
-	       'Host' => HOST,
-	       'Content-Type' => 'application/x-www-form-urlencoded',
-	       'Content-length' => data.size.to_s,
-	     }
-	
-	     path = '/api/post/%s' % [@to]
-	     Net::HTTP.version_1_2
-	     Net::HTTP.start(HOST, 80) do |http|
-	       http.post(path, data, header)
-	     end
-	   end
-	
-	   private
-	   def u(str)
-	     str.to_s.gsub(/[^a-zA-Z0-9_\-.]/n) do
-	       '%%%02X' % $&.unpack("C").first
-	     end
-	   end
-	
-	 end
+			def imnotify(msg)
+				if !@sig.nil?
+					sig = Digest::SHA1.hexdigest(msg + @sig)
+					data = 'message=%s&amp;sig=%s' % [u(msg), sig]
+				elsif !@pwd.nil?
+					data = 'message=%s&amp;password=%s' % [u(msg), u(@pwd)]
+				else
+					data = 'message=%s' % [u(msg)]
+				end
+				data << '&amp;id=%s' % [u(@id)] unless @id.nil?
+				header = {
+					'Host' => HOST,
+					'Content-Type' => 'application/x-www-form-urlencoded',
+					'Content-length' => data.size.to_s,
+				}
+
+				path = '/api/post/%s' % [@to]
+				Net::HTTP.version_1_2
+				Net::HTTP.start(HOST, 80) do |http|
+					http.post(path, data, header)
+				end
+			end
+
+			private
+			def u(str)
+				str.to_s.gsub(/[^a-zA-Z0-9_\-.]/n) do
+					'%%%02X' % $&.unpack("C").first
+				end
+			end
+		end
 	end
 
-def imkayac( icon, params = {}, user = nil )
-	message = params[:description]
-	begin
-		info "Notify with ImKayac..."
-		im = IM::Kayac.new(@@conf['ImKayac']['ImUser'], :sig => @@conf['ImKayac']['SecretKey'])
-		res = im.notify(message)
-		debug "ImKayac Response: #{res.code}"
-    rescue
-		error "Error while Prowling: #{$!}"
+	def imkayac( icon, params = {}, user = nil )
+		message = params[:description]
+		begin
+			info "Notify with ImKayac..."
+			im = IM::Kayac.new(@@conf['ImKayac']['ImUser'], :sig => @@conf['ImKayac']['SecretKey'])
+			res = im.imnotify(message)
+			debug "ImKayac Response: #{res.code}"
+    	rescue
+			error "Error while Prowling: #{$!}"
+		end
 	end
-end
 
 ##end of im.kayac.com
 
